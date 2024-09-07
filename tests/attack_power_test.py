@@ -15,12 +15,13 @@ _DATA_DIR = _TEST_DIR / "attack_values"
 _GAMEDATA_DIR = _TEST_DIR.parent / _GAME_VERSION
 _ATTRIBUTE_SETS = [Attributes.from_string(f.stem) for f in _DATA_DIR.glob("*")]
 
+
 def pytest_generate_tests(metafunc):
     assert "armament" in metafunc.fixturenames
     assert "attribs" in metafunc.fixturenames
 
     with open(_GAMEDATA_DIR / "armaments.json") as f:
-        armaments = json.load(f)["Armaments"]
+        armaments = json.load(f)
 
     armament_data: list[tuple[str, str]] = []
     armament_ids: list[str] = []
@@ -33,9 +34,11 @@ def pytest_generate_tests(metafunc):
     metafunc.parametrize("armament", armament_data, ids=armament_ids)
     metafunc.parametrize("attribs", _ATTRIBUTE_SETS, ids=[*map(str, _ATTRIBUTE_SETS)])
 
+
 @pytest.fixture(scope="module")
 def calc_data() -> CalculatorData:
     return CalculatorData.create(_GAMEDATA_DIR)
+
 
 @pytest.fixture(scope="module")
 def results_data() -> dict[str, dict]:
@@ -44,6 +47,7 @@ def results_data() -> dict[str, dict]:
             return json.load(f)
 
     return {attribs: load(attribs) for attribs in _ATTRIBUTE_SETS}
+
 
 def test_attack_power(calc_data, armament, attribs, results_data):
     affinity, name = armament

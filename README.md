@@ -63,7 +63,7 @@ Adopting the database in a project is beneficial beyond just providing the data 
 
 * Structure of JSON designed as shallow and straightforward to parse as possible.
 * Digging into nested fields is avoided, while retaining a logically sensible layout.
-* Layout adheres to a strictly defined schema with the help of [Pydantic](https://docs.pydantic.dev/), ensuring integrity of all values.
+* Layout adheres to a strictly defined schema with the help of [Pydantic](https://docs.pydantic.dev/2.9/), ensuring integrity of all values.
 * [FastAPI](https://fastapi.tiangolo.com/) sets up REST endpoints with OpenAPI-compatible documentation.
 
 ### Availablility

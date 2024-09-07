@@ -12,3 +12,4 @@ src/erdb/data/thirdparty/*
 !src/erdb/data/thirdparty/README.md
 *.egg-info/
 *.egg
+1.*.*/

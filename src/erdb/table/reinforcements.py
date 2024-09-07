@@ -1,4 +1,11 @@
-from erdb.typing.models.reinforcement import Reinforcement, ReinforcementLevel, DamageMultiplier, ScalingMultiplier, GuardMultiplier, ResistanceMultiplier
+from erdb.typing.models.reinforcement import (
+    Reinforcement,
+    ReinforcementLevel,
+    DamageMultiplier,
+    ScalingMultiplier,
+    GuardMultiplier,
+    ResistanceMultiplier,
+)
 from erdb.typing.params import ParamRow
 from erdb.typing.enums import ItemIDFlag
 from erdb.typing.api_version import ApiVersion
@@ -17,6 +24,7 @@ def _get_damages(row: ParamRow) -> DamageMultiplier:
         stamina=row["staminaAtkRate"].as_float,
     )
 
+
 def _get_scalings(row: ParamRow) -> ScalingMultiplier:
     return ScalingMultiplier(
         strength=row["correctStrengthRate"].as_float,
@@ -25,6 +33,7 @@ def _get_scalings(row: ParamRow) -> ScalingMultiplier:
         faith=row["correctFaithRate"].as_float,
         arcane=row["correctLuckRate"].as_float,
     )
+
 
 def _get_guards(row: ParamRow) -> GuardMultiplier:
     return GuardMultiplier(
@@ -35,6 +44,7 @@ def _get_guards(row: ParamRow) -> GuardMultiplier:
         holy=row["darkGuardCutRate"].as_float,
         guard_boost=row["staminaGuardDefRate"].as_float,
     )
+
 
 def _get_resistances(row: ParamRow) -> ResistanceMultiplier:
     return ResistanceMultiplier(
@@ -47,32 +57,43 @@ def _get_resistances(row: ParamRow) -> ResistanceMultiplier:
         death_blight=row["curseGuardResistRate"].as_float,
     )
 
+
 def _get_reinforcement_level(row: ParamRow, level: int) -> ReinforcementLevel:
     return ReinforcementLevel(
         level=level,
         damage=_get_damages(row),
         scaling=_get_scalings(row),
         guard=_get_guards(row),
-        resistance=_get_resistances(row)
+        resistance=_get_resistances(row),
     )
+
 
 class ReinforcementTableSpec(TableSpecContext):
     model = {
         ApiVersion.VER_1: Reinforcement,
     }
 
-    main_param_retriever = ParamDictRetriever("ReinforceParamWeapon", ItemIDFlag.NON_EQUIPABBLE)
+    main_param_retriever = ParamDictRetriever(
+        "ReinforceParamWeapon", ItemIDFlag.NON_EQUIPABBLE
+    )
 
     predicates: list[RowPredicate] = [
         lambda row: row.is_base_item,
         lambda row: len(row.name) > 0,
     ]
 
-    @classmethod # override
+    @classmethod  # override
     def get_pk(cls, data: RetrieverData, row: ParamRow) -> str:
         return str(row.index)
 
     @classmethod
     def make_object(cls, api: ApiVersion, data: RetrieverData, row: ParamRow):
-        indices, offset = find_offset_indices(row.index, data.main_param, possible_maxima=[0, 10, 25])
-        return Reinforcement([_get_reinforcement_level(data.main_param[i], lvl) for i, lvl in zip(indices, offset)])
+        indices, offset = find_offset_indices(
+            row.index, data.main_param, possible_maxima=[0, 10, 25]
+        )
+        return Reinforcement(
+            reinforcements=[
+                _get_reinforcement_level(data.main_param[i], lvl)
+                for i, lvl in zip(indices, offset)
+            ]
+        )
